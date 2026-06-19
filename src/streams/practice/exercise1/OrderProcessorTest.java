@@ -17,12 +17,12 @@ class OrderProcessorTest {
 
         var order2 = new OrderProcessor.Order(List.of(
             new OrderProcessor.OrderItem("Belt", 3.99),
-            new OrderProcessor.OrderItem("Sunglasses", 25.00),
+            new OrderProcessor.OrderItem("Sunglasses", 15.00),
             new OrderProcessor.OrderItem("Hat", 15.00)
         ));
 
         var order3 = new OrderProcessor.Order(List.of(
-            new OrderProcessor.OrderItem("Sunglasses", 25.00),
+            new OrderProcessor.OrderItem("Sunglasses", 15.00),
             new OrderProcessor.OrderItem("Scarf", 4.99),
             new OrderProcessor.OrderItem("Shoes", 89.99)
         ));
@@ -42,11 +42,11 @@ class OrderProcessorTest {
         assertEquals("Wallet", result.get(2).productName());
         assertEquals(45.00, result.get(2).price(), 0.001);
 
-        assertEquals("Sunglasses", result.get(3).productName());
-        assertEquals(25.00, result.get(3).price(), 0.001);
+        assertEquals("Hat", result.get(3).productName());
+        assertEquals(15.00, result.get(3).price(), 0.001);
 
         assertEquals("Sunglasses", result.get(4).productName());
-        assertEquals(25.00, result.get(4).price(), 0.001);
+        assertEquals(15.00, result.get(4).price(), 0.001);
 
         assertTrue(result.get(3).productName().compareTo(result.get(4).productName()) <= 0,
                 "Items with same price should be sorted alphabetically");

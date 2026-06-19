@@ -22,7 +22,13 @@ public class OrderProcessor {
      * @return a list of items costing $5.00 or more, sorted by price descending then by name
      */
     public List<OrderItem> getItemsSortedByPrice(List<Order> orders) {
-        // TODO: implement
-        return null;
+        var set = orders.stream()
+                .flatMap(o -> o.items().stream())
+                .filter(i -> i.price() >= 5)
+                .collect(Collectors.toSet());
+
+                return set.stream()
+                .sorted(Comparator.<OrderItem, Double>comparing(o -> o.price()).reversed().thenComparing(o -> o.productName()))
+                .toList();
     }
 }
