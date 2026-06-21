@@ -27,11 +27,17 @@ public class FlightTracker {
      * @return TreeMap keyed by flight number, values are Flight objects, sorted by duration desc then airline asc
      */
     public Map<String, Flight> getFlightsSortedByDuration(List<String> flightData) {
+        var res = flightData.stream()
+                .map(s -> {
+                    var sp = s.split(":");
+
+                    return new Flight(sp[0], sp[1], Integer.parseInt(sp[2]));
+                })
+                .toList();
+
+        System.out.println(res);
+
         // TODO: implement
         return null;
-    }
-
-    public static void main(String[] args) {
-        // TODO: create sample data, call getFlightsSortedByDuration, print results
     }
 }
