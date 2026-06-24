@@ -36,13 +36,14 @@ class FlightTrackerTest {
         List<String> data = List.of(
             "Delta:DL101:85",
             "United:UA120:180",
+            "United:UA100:180",
             "Southwest:SWA45:60",
             "AirCanada:AC850:480"
         );
         Map<String, FlightTracker.Flight> result = tracker.getFlightsSortedByDuration(data);
 
         assertNotNull(result);
-        assertEquals(2, result.size());
+        assertEquals(3, result.size());
         assertFalse(result.containsKey("DL101"));
         assertFalse(result.containsKey("SWA45"));
     }
