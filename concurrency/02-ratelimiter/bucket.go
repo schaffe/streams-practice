@@ -48,13 +48,18 @@ func (b *TokenBucket) refill() {
 // Allow reports whether one token is available, consuming it if so.
 func (b *TokenBucket) Allow() bool { return b.AllowN(1) }
 
-// AllowN consumes n tokens if available; non-blocking.
-func (b *TokenBucket) AllowN(n float64) bool {
+// AllowN consumes n tokens if available; non-blocking. A non-positive n
+// requests nothing and is trivially allowed without consuming tokens.
+func (b *TokenBucket) AllowN(n int) bool {
+	if n <= 0 {
+		return true
+	}
+	want := float64(n)
 	b.mu.Lock()
 	defer b.mu.Unlock()
 	b.refill()
-	if b.tokens >= n {
-		b.tokens -= n
+	if b.tokens >= want {
+		b.tokens -= want
 		return true
 	}
 	return false
@@ -65,20 +70,24 @@ func (b *TokenBucket) Wait(ctx context.Context) error { return b.WaitN(ctx, 1) }
 
 // WaitN blocks until n tokens are available or ctx is cancelled. It reserves
 // the tokens before sleeping so concurrent waiters do not double-claim.
-func (b *TokenBucket) WaitN(ctx context.Context, n float64) error {
-	if n > b.capacity {
+func (b *TokenBucket) WaitN(ctx context.Context, n int) error {
+	if n <= 0 {
+		return nil
+	}
+	want := float64(n)
+	if want > b.capacity {
 		return ErrExceedsCapacity
 	}
 	b.mu.Lock()
 	b.refill()
-	if b.tokens >= n {
-		b.tokens -= n
+	if b.tokens >= want {
+		b.tokens -= want
 		b.mu.Unlock()
 		return nil
 	}
-	deficit := n - b.tokens
+	deficit := want - b.tokens
 	delay := time.Duration(deficit / b.refillRate * float64(time.Second))
-	b.tokens -= n // reserve (may go negative)
+	b.tokens -= want // reserve (may go negative)
 	b.last = b.clock.Now()
 	b.mu.Unlock()
 
@@ -90,7 +99,7 @@ func (b *TokenBucket) WaitN(ctx context.Context, n float64) error {
 	case <-ctx.Done():
 		b.mu.Lock()
 		b.refill()
-		b.tokens = min(b.capacity, b.tokens+n)
+		b.tokens = min(b.capacity, b.tokens+want)
 		b.mu.Unlock()
 		return ctx.Err()
 	}
