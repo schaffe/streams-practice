@@ -88,6 +88,10 @@ func (b *TokenBucket) WaitN(ctx context.Context, n float64) error {
 	case <-timer.C:
 		return nil
 	case <-ctx.Done():
+		b.mu.Lock()
+		b.refill()
+		b.tokens = min(b.capacity, b.tokens+n)
+		b.mu.Unlock()
 		return ctx.Err()
 	}
 }
