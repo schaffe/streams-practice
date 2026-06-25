@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-var limiter chan struct{}
+var limiter <-chan time.Time
 
 type Fetcher interface {
 	Fetch(url string) (string, []string, error)
@@ -40,13 +40,7 @@ func Crawl(url string, depth int, wg *sync.WaitGroup) {
 func main() {
 	var wg sync.WaitGroup
 
-	limiter = make(chan struct{}, 1)
-	go func() {
-		for {
-			time.Sleep(1 * time.Second)
-			limiter <- struct{}{}
-		}
-	}()
+	limiter = time.Tick(time.Second)
 
 	wg.Add(1)
 
