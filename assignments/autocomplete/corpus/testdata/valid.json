@@ -1,0 +1,5 @@
+[
+  {"term": "foo", "frequency": 42},
+  {"term": "bar", "frequency": 17},
+  {"term": "baz", "frequency": 99}
+]
