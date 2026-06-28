@@ -19,9 +19,10 @@ type Searcher interface {
 
 // CLI handles user interaction for autocomplete search.
 type CLI struct {
-	searcher Searcher
-	in       io.Reader
-	out      io.Writer
+	searcher  Searcher
+	in        io.Reader
+	out       io.Writer
+	lastLines int
 }
 
 // NewCLI creates a new CLI with the given searcher, input, and output.
@@ -48,7 +49,9 @@ func (c *CLI) RunInteractive() error {
 		return err
 	}
 	defer func() { _ = term.Restore(fd, oldState) }()
-	return c.drive()
+	err = c.drive()
+	_, _ = fmt.Fprintf(c.out, "\r\n")
+	return err
 }
 
 func (c *CLI) drive() error {
@@ -104,11 +107,19 @@ func (c *CLI) drive() error {
 }
 
 func (c *CLI) render(prefix string, results []corpus.Entry) {
-	_, _ = fmt.Fprintf(c.out, "\r\033[J")
+	if c.lastLines > 0 {
+		_, _ = fmt.Fprintf(c.out, "\033[%dA", c.lastLines)
+	}
+	_, _ = fmt.Fprintf(c.out, "\033[J\r")
+
+	n := 0
 	if prefix != "" {
-		_, _ = fmt.Fprintf(c.out, "> %s\n", prefix)
+		_, _ = fmt.Fprintf(c.out, "> %s\r\n", prefix)
+		n++
 	}
 	for i, e := range results {
-		_, _ = fmt.Fprintf(c.out, "  %d. %s (%d)\n", i+1, e.Term, e.Frequency)
+		_, _ = fmt.Fprintf(c.out, "  %d. %s (%d)\r\n", i+1, e.Term, e.Frequency)
+		n++
 	}
+	c.lastLines = n
 }
