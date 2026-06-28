@@ -7,10 +7,10 @@ func TestNewRoverAndPosition(t *testing.T) {
 	tests := []struct {
 		name            string
 		id              UnitID
+		expectedID      UnitID
 		x               int
 		y               int
 		heading         Heading
-		expectedID      UnitID
 		expectedX       int
 		expectedY       int
 		expectedHeading Heading
@@ -299,13 +299,13 @@ func TestFourRightTurnsReturnToOriginal(t *testing.T) {
 // TestHeadingString verifies that Heading.String() returns the correct string representation
 func TestHeadingString(t *testing.T) {
 	tests := []struct {
-		heading  Heading
 		expected string
+		heading  Heading
 	}{
-		{North, "N"},
-		{East, "E"},
-		{South, "S"},
-		{West, "W"},
+		{expected: "N", heading: North},
+		{expected: "E", heading: East},
+		{expected: "S", heading: South},
+		{expected: "W", heading: West},
 	}
 
 	for _, tt := range tests {

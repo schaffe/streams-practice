@@ -170,7 +170,7 @@ func TestApplyUnknownUnitIDDoesNotMutateGrid(t *testing.T) {
 	g := New(rover)
 
 	snapshotBefore := g.Snapshot()
-	g.Apply(Command{Unit: "unknown", Action: Forward})
+	_ = g.Apply(Command{Unit: "unknown", Action: Forward})
 	snapshotAfter := g.Snapshot()
 
 	if snapshotBefore.Units[0].X != snapshotAfter.Units[0].X ||
@@ -230,8 +230,12 @@ func TestMultipleCommandsOnSameUnit(t *testing.T) {
 	g := New(rover)
 
 	// Forward twice
-	g.Apply(Command{Unit: "rover", Action: Forward})
-	g.Apply(Command{Unit: "rover", Action: Forward})
+	if err := g.Apply(Command{Unit: "rover", Action: Forward}); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if err := g.Apply(Command{Unit: "rover", Action: Forward}); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 
 	snapshot := g.Snapshot()
 	if snapshot.Units[0].Y != 2 {
@@ -239,14 +243,18 @@ func TestMultipleCommandsOnSameUnit(t *testing.T) {
 	}
 
 	// Turn right
-	g.Apply(Command{Unit: "rover", Action: TurnRight})
+	if err := g.Apply(Command{Unit: "rover", Action: TurnRight}); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 	snapshot = g.Snapshot()
 	if snapshot.Units[0].Heading != entity.East {
 		t.Errorf("expected heading East after TurnRight, got %v", snapshot.Units[0].Heading)
 	}
 
 	// Forward once more
-	g.Apply(Command{Unit: "rover", Action: Forward})
+	if err := g.Apply(Command{Unit: "rover", Action: Forward}); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 	snapshot = g.Snapshot()
 	if snapshot.Units[0].X != 1 || snapshot.Units[0].Y != 2 {
 		t.Errorf("expected position (1,2), got (%d,%d)", snapshot.Units[0].X, snapshot.Units[0].Y)
@@ -260,7 +268,9 @@ func TestFullRotationReturnsToOriginalHeading(t *testing.T) {
 
 	// Turn left 4 times (full rotation)
 	for i := 0; i < 4; i++ {
-		g.Apply(Command{Unit: "rover", Action: TurnLeft})
+		if err := g.Apply(Command{Unit: "rover", Action: TurnLeft}); err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
 	}
 
 	snapshot := g.Snapshot()

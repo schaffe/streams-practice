@@ -1,3 +1,4 @@
+// Package entity defines rover domain types including heading, rotation, and position.
 package entity
 
 // UnitID is a unique identifier for a rover unit.
@@ -7,9 +8,13 @@ type UnitID string
 type Heading int
 
 const (
+	// North represents the north direction.
 	North Heading = iota
+	// East represents the east direction.
 	East
+	// South represents the south direction.
 	South
+	// West represents the west direction.
 	West
 )
 
@@ -33,7 +38,9 @@ func (h Heading) String() string {
 type Rotation int
 
 const (
+	// Left represents a counterclockwise turn.
 	Left Rotation = iota
+	// Right represents a clockwise turn.
 	Right
 )
 

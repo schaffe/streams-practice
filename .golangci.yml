@@ -1,0 +1,23 @@
+version: "2"
+
+linters:
+  enable:
+    - govet
+    - errcheck
+    - staticcheck
+    - revive
+    - ineffassign
+    - unused
+    - misspell
+  settings:
+    govet:
+      enable-all: true
+    staticcheck:
+      checks: ["all"]
+    revive:
+      rules:
+        - name: exported
+          severity: warning
+
+run:
+  timeout: 5m

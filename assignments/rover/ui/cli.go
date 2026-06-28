@@ -1,3 +1,4 @@
+// Package ui provides a terminal CLI for controlling a rover world.
 package ui
 
 import (
@@ -88,11 +89,11 @@ func (c *CLI) drive() error {
 		}
 		if applyErr := c.world.Apply(cmd); applyErr != nil {
 			// Show error on the line; keep looping.
-			fmt.Fprintf(c.out, "\r%v", applyErr)
+			_, _ = fmt.Fprintf(c.out, "\r%v", applyErr)
 			continue
 		}
 		// Re-render the status line in place using carriage return.
-		fmt.Fprintf(c.out, "\r")
+		_, _ = fmt.Fprintf(c.out, "\r")
 		c.renderer.Render(c.out, c.world.Snapshot())
 	}
 }
@@ -105,6 +106,6 @@ func (c *CLI) RunInteractive() error {
 	if err != nil {
 		return err
 	}
-	defer term.Restore(fd, oldState)
+	defer func() { _ = term.Restore(fd, oldState) }()
 	return c.drive()
 }

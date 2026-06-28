@@ -1,3 +1,4 @@
+// Package cli provides an interactive command-line interface for autocomplete search.
 package cli
 
 import (
@@ -11,35 +12,42 @@ import (
 	"streams-practice/assignments/autocomplete/corpus"
 )
 
+// Searcher defines the interface for prefix-based search.
 type Searcher interface {
 	Search(prefix string) []corpus.Entry
 }
 
+// CLI handles user interaction for autocomplete search.
 type CLI struct {
 	searcher Searcher
 	in       io.Reader
 	out      io.Writer
 }
 
+// NewCLI creates a new CLI with the given searcher, input, and output.
 func NewCLI(s Searcher, in io.Reader, out io.Writer) *CLI {
 	return &CLI{searcher: s, in: in, out: out}
 }
 
+// RunBatch runs a batch search for the given prefix and prints results.
 func (c *CLI) RunBatch(prefix string) error {
 	results := c.searcher.Search(prefix)
 	for _, e := range results {
-		fmt.Fprintf(c.out, "%s (%d)\n", e.Term, e.Frequency)
+		if _, err := fmt.Fprintf(c.out, "%s (%d)\n", e.Term, e.Frequency); err != nil {
+			return err
+		}
 	}
 	return nil
 }
 
+// RunInteractive runs the interactive terminal UI.
 func (c *CLI) RunInteractive() error {
 	fd := int(os.Stdin.Fd())
 	oldState, err := term.MakeRaw(fd)
 	if err != nil {
 		return err
 	}
-	defer term.Restore(fd, oldState)
+	defer func() { _ = term.Restore(fd, oldState) }()
 	return c.drive()
 }
 
@@ -96,11 +104,11 @@ func (c *CLI) drive() error {
 }
 
 func (c *CLI) render(prefix string, results []corpus.Entry) {
-	fmt.Fprintf(c.out, "\r\033[J")
+	_, _ = fmt.Fprintf(c.out, "\r\033[J")
 	if prefix != "" {
-		fmt.Fprintf(c.out, "> %s\n", prefix)
+		_, _ = fmt.Fprintf(c.out, "> %s\n", prefix)
 	}
 	for i, e := range results {
-		fmt.Fprintf(c.out, "  %d. %s (%d)\n", i+1, e.Term, e.Frequency)
+		_, _ = fmt.Fprintf(c.out, "  %d. %s (%d)\n", i+1, e.Term, e.Frequency)
 	}
 }

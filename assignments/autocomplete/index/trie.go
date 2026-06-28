@@ -1,3 +1,4 @@
+// Package index provides a trie-based autocomplete index.
 package index
 
 import (
@@ -54,10 +55,12 @@ func (n *node) drain() []heapEntry {
 	return result
 }
 
+// Trie is a prefix tree for autocomplete search.
 type Trie struct {
 	root *node
 }
 
+// New builds a Trie from a list of corpus entries.
 func New(entries []corpus.Entry) *Trie {
 	t := &Trie{root: &node{children: make(map[rune]*node)}}
 	for _, entry := range entries {
@@ -76,6 +79,7 @@ func New(entries []corpus.Entry) *Trie {
 	return t
 }
 
+// Search returns entries matching the given prefix, sorted by frequency descending.
 func (t *Trie) Search(prefix string) []corpus.Entry {
 	current := t.root
 	for _, r := range strings.ToLower(prefix) {

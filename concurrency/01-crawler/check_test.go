@@ -7,17 +7,16 @@ import (
 
 func Test(t *testing.T) {
 	fetchSig := fetchSignalInstance()
+	errCh := make(chan struct{}, 1)
 
 	start := time.Unix(0, 0)
 	go func(start time.Time) {
 		for {
 			switch {
 			case <-fetchSig:
-				// Check if signal arrived earlier than a second (with error margin)
-				if time.Now().Sub(start).Nanoseconds() < 950000000 {
-					t.Log("There exists a two crawls that were executed less than 1 second apart.")
-					t.Log("Solution is incorrect.")
-					t.FailNow()
+				if time.Since(start).Nanoseconds() < 950000000 {
+					errCh <- struct{}{}
+					return
 				}
 				start = time.Now()
 			}
@@ -25,4 +24,12 @@ func Test(t *testing.T) {
 	}(start)
 
 	main()
+
+	select {
+	case <-errCh:
+		t.Log("There exists a two crawls that were executed less than 1 second apart.")
+		t.Log("Solution is incorrect.")
+		t.FailNow()
+	default:
+	}
 }

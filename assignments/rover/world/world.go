@@ -1,3 +1,4 @@
+// Package world provides a grid-based world for managing rover units.
 package world
 
 import (
@@ -10,8 +11,11 @@ import (
 type Action int
 
 const (
+	// TurnLeft represents a left turn action.
 	TurnLeft Action = iota
+	// TurnRight represents a right turn action.
 	TurnRight
+	// Forward represents a forward movement action.
 	Forward
 )
 

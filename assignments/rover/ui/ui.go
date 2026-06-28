@@ -33,7 +33,7 @@ func NewLineRenderer() Renderer {
 func (lineRenderer) Render(w io.Writer, s world.Snapshot) {
 	for _, u := range s.Units {
 		if u.ID == ActiveUnit {
-			fmt.Fprintf(w, "(%d, %d) %s", u.X, u.Y, u.Heading.String())
+			_, _ = fmt.Fprintf(w, "(%d, %d) %s", u.X, u.Y, u.Heading.String())
 			return
 		}
 	}

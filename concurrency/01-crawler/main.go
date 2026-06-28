@@ -11,10 +11,10 @@ import (
 var limiter *TokenBucket
 
 type TokenBucket struct {
+	lastRefill time.Time
 	mu         sync.Mutex
 	tpsRate    float64
 	tpsTokens  float64
-	lastRefill time.Time
 }
 
 func NewTokenBucket(tpsRate float64) *TokenBucket {
