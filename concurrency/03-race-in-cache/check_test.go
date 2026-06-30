@@ -9,7 +9,7 @@ import (
 func Test(t *testing.T) {
 	cache, db := run(t)
 
-	cacheLen := cache.size
+	cacheLen := len(cache.cache)
 	pagesLen := cache.pages.Len()
 	if cacheLen != CacheSize {
 		t.Errorf("Incorrect cache size %v", cacheLen)
@@ -41,12 +41,12 @@ func TestLRU(t *testing.T) {
 	}
 	wg.Wait()
 
-	if cache.size != 100 {
-		t.Errorf("cache not 100: %d", cache.size)
+	if len(cache.cache) != 100 {
+		t.Errorf("cache not 100: %d", len(cache.cache))
 	}
 	cache.Get("Test0")
 	cache.Get("Test101")
-	if _, ok := cache.cache.Load("Test0"); !ok {
+	if _, ok := cache.cache["Test0"]; !ok {
 		t.Errorf("0 evicted incorrectly: %v", cache.cache)
 	}
 

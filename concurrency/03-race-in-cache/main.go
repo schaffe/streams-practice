@@ -4,8 +4,6 @@ import (
 	"container/list"
 	"sync"
 	"testing"
-
-	"github.com/go4org/hashtriemap"
 )
 
 // CacheSize determines how big the cache can grow
@@ -25,9 +23,8 @@ type page struct {
 // KeyStoreCache is a LRU cache for string key-value pairs
 type KeyStoreCache struct {
 	mu    sync.Mutex
-	cache hashtriemap.HashTrieMap[string, *list.Element]
+	cache map[string]*list.Element
 	pages list.List
-	size  uint
 	load  func(string) string
 }
 
@@ -35,36 +32,29 @@ type KeyStoreCache struct {
 func New(load KeyStoreCacheLoader) *KeyStoreCache {
 	return &KeyStoreCache{
 		load:  load.Load,
-		cache: hashtriemap.HashTrieMap[string, *list.Element]{},
+		cache: make(map[string]*list.Element),
 	}
 }
 
 // Get gets the key from cache, loads it from the source if needed
 func (k *KeyStoreCache) Get(key string) string {
+	k.mu.Lock()
+	defer k.mu.Unlock()
 
-	if e, ok := k.cache.Load(key); ok {
-		k.mu.Lock()
+	if e, ok := k.cache[key]; ok {
 		k.pages.MoveToFront(e)
-		k.mu.Unlock()
 		return e.Value.(page).Value
 	}
-	// Miss - load from database and save it in cache
-	// if cache is full remove the least used item
-	k.mu.Lock()
-	p := page{key, k.load(key)}
 
-	if k.size >= CacheSize {
+	// Miss - load from database and save it in cache
+	p := page{key, k.load(key)}
+	if len(k.cache) >= CacheSize {
 		end := k.pages.Back()
-		// remove from map
-		k.cache.Delete(end.Value.(page).Key)
-		// remove from list
+		delete(k.cache, end.Value.(page).Key)
 		k.pages.Remove(end)
-	} else {
-		k.size++
 	}
 	k.pages.PushFront(p)
-	k.cache.Swap(key, k.pages.Front())
-	k.mu.Unlock()
+	k.cache[key] = k.pages.Front()
 	return p.Value
 }
 
