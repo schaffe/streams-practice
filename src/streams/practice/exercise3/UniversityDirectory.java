@@ -1,9 +1,7 @@
 package streams.practice.exercise3;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class UniversityDirectory {
 
@@ -16,8 +14,12 @@ public class UniversityDirectory {
      * language names.
      */
     public List<String> getAllLanguagesAlphabetized(List<Department> departments) {
-        // TODO: implement
-        return null;
+        return departments.stream()
+                .flatMap(d -> d.professors.stream())
+                .flatMap(p -> p.programmingLanguages.stream())
+                .distinct()
+                .sorted()
+                .toList();
     }
 
     /**
@@ -25,8 +27,11 @@ public class UniversityDirectory {
      * of professors who teach it.
      */
     public Map<String, Long> countProfessorsByLanguage(List<Department> departments) {
-        // TODO: implement
-        return null;
+
+        return departments.stream()
+                .flatMap(d -> d.professors.stream())
+                .flatMap(p -> p.programmingLanguages.stream())
+                .collect(Collectors.groupingBy(p -> p, Collectors.counting()));
     }
 
     /**
@@ -35,8 +40,15 @@ public class UniversityDirectory {
      * alphabetically. Hint: use a LinkedHashMap after sorting the entries.
      */
     public Map<String, Long> getLanguagesByPopularity(List<Department> departments) {
-        // TODO: implement
-        return null;
+        return departments.stream()
+                .flatMap(d -> d.professors.stream())
+                .flatMap(p -> p.programmingLanguages.stream())
+                .collect(Collectors.groupingBy(p -> p, Collectors.counting()))
+                .entrySet()
+                .stream()
+                .sorted(Map.Entry.<String, Long>comparingByValue().reversed().thenComparing(Map.Entry::getKey))
+                .peek(System.out::println)
+                .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue(), (a, b) -> a, LinkedHashMap::new));
     }
 
     public static void main(String[] args) {
